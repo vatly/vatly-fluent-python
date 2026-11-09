@@ -1,0 +1,38 @@
+name: Publish to PyPI
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.9'
+      - run: uv sync --locked
+      - env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: uv run python -c 'import os, vatly_fluent; assert os.environ["RELEASE_TAG"] == "v" + vatly_fluent.__version__'
+      - run: uv run ruff check . && uv run ruff format --check . && uv run mypy && uv run pytest
+      - run: uv build && uv run twine check dist/* && uv run python scripts/check_package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/vatly-fluent
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

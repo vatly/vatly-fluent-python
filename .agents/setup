@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
+SECONDS=0
+export PATH="$HOME/.local/bin:$PATH"
+uv_version=0.12.9
+if ! command -v uv >/dev/null || [[ "$(uv --version)" != "uv $uv_version"* ]]; then
+  curl --proto '=https' --tlsv1.2 -LsSf "https://astral.sh/uv/$uv_version/install.sh" | sh
+fi
+uv python install "$(cat .python-version)"
+uv sync --locked
+uv run --no-sync python -c 'from vatly_fluent import Vatly, Wiring, EntityRef; print("Fluent import sanity check passed")'
+echo "Orb setup finished in ${SECONDS}s."

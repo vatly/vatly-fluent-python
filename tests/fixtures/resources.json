@@ -1,0 +1,318 @@
+{
+  "Checkout": {
+    "id": "checkout_QdEpFhdSrG4Y3DnfsdqsH",
+    "resource": "checkout",
+    "customerId": null,
+    "orderId": null,
+    "testmode": false,
+    "redirectUrlSuccess": "https://example.com/success",
+    "redirectUrlCanceled": "https://example.com/canceled",
+    "metadata": null,
+    "locale": "en",
+    "status": "created",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "links": {
+      "checkoutUrl": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "self": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "order": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      }
+    }
+  },
+  "Customer": {
+    "id": "customer_7kBmRtPvXw2NjLhYcZaE",
+    "resource": "customer",
+    "testmode": false,
+    "email": "customer@example.com",
+    "name": null,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "metadata": null,
+    "links": {
+      "self": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      }
+    }
+  },
+  "Order": {
+    "id": "order_Hn5xWqVfKm8RjTgYbUcP",
+    "resource": "order",
+    "customerId": null,
+    "testmode": false,
+    "metadata": null,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "status": "created",
+    "cancellationReason": "payment_failure",
+    "total": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "subtotal": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "reversedSubtotal": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "refundableSubtotal": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "taxSummary": [
+      {
+        "taxRate": {
+          "name": "VAT",
+          "percentage": 21,
+          "taxablePercentage": 100
+        },
+        "amount": {
+          "value": "99.99",
+          "currency": "EUR"
+        }
+      }
+    ],
+    "lines": [
+      {
+        "id": "order_item_Jk4pQrSvWm8NjLhYbUcP",
+        "resource": "orderline",
+        "description": "Pro Monthly Subscription",
+        "quantity": 1,
+        "basePrice": {
+          "value": "99.99",
+          "currency": "EUR"
+        },
+        "total": {
+          "value": "99.99",
+          "currency": "EUR"
+        },
+        "subtotal": {
+          "value": "99.99",
+          "currency": "EUR"
+        },
+        "taxes": [
+          {
+            "taxRate": {
+              "name": "VAT",
+              "percentage": 21,
+              "taxablePercentage": 100
+            },
+            "amount": {
+              "value": "99.99",
+              "currency": "EUR"
+            }
+          }
+        ]
+      }
+    ],
+    "customerDetails": {},
+    "links": {
+      "self": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "customer": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "customerInvoice": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      }
+    }
+  },
+  "Subscription": {
+    "id": "subscription_Lp3mNvBxKw7RjTgYcZaE",
+    "resource": "subscription",
+    "customerId": "customer_Lp3mNvBxKw7RjTgYcZaE",
+    "subscriptionPlanId": "subscription_plan_Wt5mNvBxKw7YcZaEjLhR",
+    "testmode": false,
+    "name": "Pro Monthly",
+    "description": "Full access to all Pro features",
+    "billingAddress": {},
+    "basePrice": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "quantity": 1,
+    "interval": "day",
+    "intervalCount": 1,
+    "status": "active",
+    "cancellationReason": "payment_failure",
+    "mandate": {
+      "method": "card",
+      "maskedIdentifier": null
+    },
+    "startedAt": null,
+    "endedAt": null,
+    "canceledAt": null,
+    "renewedAt": null,
+    "renewedUntil": null,
+    "nextRenewalAt": null,
+    "trialUntil": null,
+    "links": {
+      "self": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "customer": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      }
+    },
+    "scheduledUpdate": null
+  },
+  "Refund": {
+    "id": "refund_Xk9pQrSvWm4NjLhYbUcP",
+    "resource": "refund",
+    "orderId": null,
+    "customerId": "customer_Lp3mNvBxKw7RjTgYcZaE",
+    "testmode": false,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "status": "pending",
+    "originalOrderId": "order_Fp2kQrSvWm8NjLhYbUcP",
+    "total": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "subtotal": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "taxSummary": [
+      {
+        "taxRate": {
+          "name": "VAT",
+          "percentage": 21,
+          "taxablePercentage": 100
+        },
+        "amount": {
+          "value": "99.99",
+          "currency": "EUR"
+        }
+      }
+    ],
+    "lines": [
+      {
+        "id": "refund_item_Tk7mNvBxKw2RjTgYcZaE",
+        "resource": "refundline",
+        "description": "Pro Monthly Subscription (Refund)",
+        "quantity": 1,
+        "basePrice": {
+          "value": "99.99",
+          "currency": "EUR"
+        },
+        "total": {
+          "value": "99.99",
+          "currency": "EUR"
+        },
+        "subtotal": {
+          "value": "99.99",
+          "currency": "EUR"
+        },
+        "taxes": [
+          {
+            "taxRate": {
+              "name": "VAT",
+              "percentage": 21,
+              "taxablePercentage": 100
+            },
+            "amount": {
+              "value": "99.99",
+              "currency": "EUR"
+            }
+          }
+        ]
+      }
+    ],
+    "links": {
+      "self": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "originalOrder": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "order": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "customerInvoice": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      }
+    }
+  },
+  "Chargeback": {
+    "id": "chargeback_Mn6xBtPvKw2RjTgYcZaE",
+    "resource": "chargeback",
+    "customerId": "customer_Lp3mNvBxKw7RjTgYcZaE",
+    "testmode": false,
+    "createdAt": "2024-01-15T10:30:00Z",
+    "status": "pending",
+    "amount": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "settlementAmount": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "total": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "subtotal": {
+      "value": "99.99",
+      "currency": "EUR"
+    },
+    "taxSummary": [
+      {
+        "taxRate": {
+          "name": "VAT",
+          "percentage": 21,
+          "taxablePercentage": 100
+        },
+        "amount": {
+          "value": "99.99",
+          "currency": "EUR"
+        }
+      }
+    ],
+    "reason": "fraud",
+    "originalOrderId": "order_Fp2kQrSvWm8NjLhYbUcP",
+    "orderId": null,
+    "links": {
+      "self": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "originalOrder": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "order": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      },
+      "customerInvoice": {
+        "href": "https://api.vatly.com/v1/orders/order_Hn5xWqVfKm8RjTgYbUcP",
+        "type": "application/json"
+      }
+    }
+  },
+  "Webhook": {
+    "resource": "webhook",
+    "id": "webhook_QdEpFhdSrG4Y3DnfsdqsH",
+    "url": "https://merchant.example/webhooks/vatly",
+    "testmode": true
+  }
+}
