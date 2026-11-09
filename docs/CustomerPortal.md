@@ -1,7 +1,7 @@
 # Customer portal
 
 After authorizing the customer ID, call
-`await vatly.customer(id).portal_session({"redirectUrl": "https://app.example.com/billing"})`
+`await vatly.customer(id).portal_session({"returnUrl": "https://app.example.com/billing"})`
 using the production API's request fields. An empty `{}` body is also supported.
 Redirect to `session.url`. It is short-lived/single-use; never log it or use it as
 a permanent account URL. Errors propagate from the SDK without wrapping.
