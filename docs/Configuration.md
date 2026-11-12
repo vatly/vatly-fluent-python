@@ -22,8 +22,9 @@ and becomes active for project orbs after reaching the default branch.
 
 Before PyPI publication, uv uses the [pinned SDK wheel](../vendor/README.md).
 Wheel metadata still declares the normal exact PyPI dependency. The PyPI JSON
-API returned 404 for `vatly-fluent` on 2026-11-09; availability is not a reservation.
-Publish the SDK first. Configure PyPI's pending trusted publisher with owner
+API returned 404 for `vatly-fluent-python` on 2026-11-12; availability is not a reservation.
+Publish the SDK first. Configure PyPI's pending trusted publisher for project
+`vatly-fluent-python` with owner
 `vatly`, repository `vatly-fluent-python`, workflow `release.yml`; leave the
 environment field blank. No GitHub environment or API token is needed. Restrict
 repository release access: there is no environment approval gate. Only publish a

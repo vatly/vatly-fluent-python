@@ -1289,11 +1289,31 @@ wheels = [
 ]
 
 [[package]]
-name = "vatly-fluent"
+name = "vatly-api-python"
+version = "0.1.0a2"
+source = { path = "vendor/vatly_api_python-0.1.0a2-py3-none-any.whl" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "typing-extensions" },
+]
+wheels = [
+    { filename = "vatly_api_python-0.1.0a2-py3-none-any.whl", hash = "sha256:c85d3d4fdc6573820b0916010c8f968c2201bccdb50fc791d88274794b8fd774" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27,<1" },
+    { name = "pydantic", specifier = ">=2.11,<3" },
+    { name = "typing-extensions", specifier = ">=4.12,<5" },
+]
+
+[[package]]
+name = "vatly-fluent-python"
 version = "0.1.0a2"
 source = { editable = "." }
 dependencies = [
-    { name = "vatly-sdk" },
+    { name = "vatly-api-python" },
 ]
 
 [package.dev-dependencies]
@@ -1306,7 +1326,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "vatly-sdk", path = "vendor/vatly_sdk-0.1.0a2-py3-none-any.whl" }]
+requires-dist = [{ name = "vatly-api-python", path = "vendor/vatly_api_python-0.1.0a2-py3-none-any.whl" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1315,26 +1335,6 @@ dev = [
     { name = "pytest-asyncio", specifier = ">=1,<2" },
     { name = "ruff", specifier = ">=0.14,<1" },
     { name = "twine", specifier = ">=6,<7" },
-]
-
-[[package]]
-name = "vatly-sdk"
-version = "0.1.0a2"
-source = { path = "vendor/vatly_sdk-0.1.0a2-py3-none-any.whl" }
-dependencies = [
-    { name = "httpx" },
-    { name = "pydantic" },
-    { name = "typing-extensions" },
-]
-wheels = [
-    { filename = "vatly_sdk-0.1.0a2-py3-none-any.whl", hash = "sha256:18332147498bef93303b43b88726119eb3ae141fa5921fd04bd355929d8533ac" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "httpx", specifier = ">=0.27,<1" },
-    { name = "pydantic", specifier = ">=2.11,<3" },
-    { name = "typing-extensions", specifier = ">=4.12,<5" },
 ]
 
 [[package]]
