@@ -14,17 +14,17 @@ Use `RequestOptions` for stable idempotency keys, headers and timeouts (seconds)
 SDK errors propagate unchanged. Keep API/webhook secrets server-side and separate.
 An email-only profile does not create a customer. Authorization is always the host's job.
 
-## Development and future release
+## Development and releases
 
 Run `.agents/setup` to provision uv 0.12.9, Python 3.12, locked dependencies and an
 import sanity check. It is idempotent, has no service/database/secret requirements,
 and becomes active for project orbs after reaching the default branch.
 
-Before PyPI publication, uv uses the [pinned SDK wheel](../vendor/README.md).
-Wheel metadata still declares the normal exact PyPI dependency. The PyPI JSON
-API returned 404 for `vatly-fluent-python` on 2026-11-12; availability is not a reservation.
-Publish the SDK first. Configure PyPI's pending trusted publisher for project
-`vatly-fluent-python` with owner
+uv retains a [pinned SDK wheel](../vendor/README.md) for reproducible development;
+published metadata declares the exact PyPI dependency.
+[`vatly-fluent-python` 0.1.0a2](https://pypi.org/project/vatly-fluent-python/0.1.0a2/)
+was published on 2026-11-12. Publish the matching SDK version first. Keep the
+PyPI trusted publisher for project `vatly-fluent-python` with owner
 `vatly`, repository `vatly-fluent-python`, workflow `release.yml`; leave the
 environment field blank. No GitHub environment or API token is needed. Restrict
 repository release access: there is no environment approval gate. Only publish a

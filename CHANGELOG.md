@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.1.0a2 — Unreleased
+## Unreleased
+
+- Refresh installation, European positioning and published-package documentation.
+
+## 0.1.0a2 — 2026-11-12
 
 - Use distribution `vatly-fluent-python`; imports remain `vatly_fluent`.
 - Depend on the renamed SDK distribution `vatly-api-python` (import `vatly`).
@@ -11,7 +15,7 @@
 - Reject conflicting trial/cycle grace deadlines; the API omits core's trial flag.
 - Require corrected SDK 0.1.0a2; refresh the unpublished bootstrap wheel.
 
-## 0.1.0a1 — Unreleased
+## 0.1.0a1 — Unpublished development snapshot
 
 > Alpha — under active development. Every alpha release may include breaking changes. Pin exact versions during alpha.
 
@@ -20,4 +24,4 @@
 - Host-owned checkout/entity linkage, PR #2910-compatible subscription references,
   bounded recovery, historical plan-line reporting, and no customerId ownership fallback.
 - Typed package, SQLite transaction/outbox example, tests, guides, CI, trusted
-  publishing workflow and idempotent orb setup. No publication or tags.
+  publishing workflow and idempotent orb setup.

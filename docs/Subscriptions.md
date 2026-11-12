@@ -32,21 +32,23 @@ access**; these convenience predicates do not account for paused/unpaid states.
 
 ## Initial subscription linking and PR #2910
 
-The core PR is not merged at implementation time. Before it, an initial order may
-have `subscription_plan` plus plan ID; there is no deterministic subscription ID
-in that line. Fluent reports `legacy_plan_ids` and does not guess using customerId,
-plan matching or quantity. A trial AUTH_REQUEST order may emit no merchant
-order.paid event; explicitly reconcile the paid checkout's orderId.
+As of 2026-11-12, [PR #2910](https://github.com/sandervanhooft/vatlify/pull/2910)
+is open and now proposes nullable `relatedResources.subscriptionId`, keeping
+`productType`/`productId` unchanged. It no longer proposes subscription-valued
+initial product references. This alpha's linkage code does not read the new field;
+it reports `subscription_plan` lines as `legacy_plan_ids`. Do not assume deployment
+of the revised core proposal alone completes this integration.
 
-After the change, initial lines have `subscription` plus intended subscription ID,
-like renewal/update lines. `await vatly.reconcile_checkout(checkout_id)` follows
+For existing subscription-valued lines, `await vatly.reconcile_checkout(checkout_id)` follows
 host records → checkout → order → distinct subscription IDs, retries each 404 up
 to three times (configurable 1–10), and returns `CheckoutResolution` with resolved
 resources, `pending_subscription_ids`, and legacy IDs. Two lines for the same plan
 can identify different subscriptions; quantity never multiplies IDs.
 
-An intended subscription may temporarily be unprojected or never exist for a
-skipped start. Return pending state, enqueue bounded recovery, inspect status,
-and do not grant access from an ID alone. The caller authorizes the checkout and
-wraps local reconciliation writes in its driver transaction. Built-in webhook
-reactions do not make API reads. Historical lines are not backfilled by core.
+An unresolved subscription ID is not evidence of entitlement. Enqueue bounded
+recovery and inspect ownership/status before granting access. The caller authorizes
+the checkout and wraps local writes in its driver transaction. Built-in reactions
+make no API reads. A future related-resources integration must preserve confirmed
+IDs across older null snapshots and refresh unresolved signup correlation via GET;
+core does not promise historical inference or backfill. Trial AUTH_REQUEST flows
+may have no merchant order.paid event; explicitly reconcile the paid checkout's orderId.
