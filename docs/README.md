@@ -19,5 +19,6 @@ for your first hosted checkout, then add storage for signed events and ownership
 | [Testing](Testing.md) | SQLite example, mock transport and local checks |
 | [Porting](Porting.md) | Source provenance and intentional differences |
 
-These standalone Markdown guides mirror the JS docs layout for future vatly-docs
-sync. No docs-site changes or synchronization jobs have been installed here.
+Pushes to `main` affecting `docs/**` notify `vatly/vatly-docs`, which imports
+these guides automatically. The notifier requires the Actions secret
+`VATLY_DOCS_DISPATCH_TOKEN` with Contents: write access to `vatly/vatly-docs`.

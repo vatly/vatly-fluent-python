@@ -23,7 +23,7 @@ Vatly-Event-Id header is not a dedup authority. Mode mismatches fail before stor
 | order.canceled | Update existing snapshot only |
 | refund.* / order.chargeback_* | Optional reversal upsert |
 | checkout.paid | Link own checkout record to order; link subscription IDs from an already stored order |
-| scheduled updates / catalogue / setup / unknown | Dispatch without built-in resource writes |
+| scheduled updates / products / setup / unknown | Dispatch without built-in resource writes |
 
 Missing repositories skip persistence, not dispatch. Local-created events fire
 only when a row is first saved, not on every payment status transition. Custom

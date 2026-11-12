@@ -30,14 +30,12 @@ endsAt predicates: active/valid through grace period, recurring before cancellat
 ended at or beyond the end time. **Check Vatly status separately before granting
 access**; these convenience predicates do not account for paused/unpaid states.
 
-## Initial subscription linking and PR #2910
+## Initial subscription linking
 
-As of 2026-11-12, [PR #2910](https://github.com/sandervanhooft/vatlify/pull/2910)
-is open and now proposes nullable `relatedResources.subscriptionId`, keeping
-`productType`/`productId` unchanged. It no longer proposes subscription-valued
-initial product references. This alpha's linkage code does not read the new field;
-it reports `subscription_plan` lines as `legacy_plan_ids`. Do not assume deployment
-of the revised core proposal alone completes this integration.
+This alpha's linkage code reports `subscription_plan` lines as `legacy_plan_ids`.
+It does not consume a related-resources subscription reference. Do not assume
+an API addition alone completes this integration; package support must be
+implemented and tested separately.
 
 For existing subscription-valued lines, `await vatly.reconcile_checkout(checkout_id)` follows
 host records → checkout → order → distinct subscription IDs, retries each 404 up
