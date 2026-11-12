@@ -63,6 +63,7 @@ lifespan. IDs and billable entities must be authorized by your application.
 | [Webhooks](Webhooks.md) | Persist signed events once in a transaction |
 | [Testing](Testing.md) | Run a checkout without network access |
 | [Porting](Porting.md) | Map JS/PHP concepts to Python |
+| [Development](Development.md) | Set up, test and build the package |
 
 [API reference](https://docs.vatly.com/api-reference) documents the underlying
 requests. These examples are executed with published `0.1.0a2` packages and local

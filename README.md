@@ -87,6 +87,8 @@ Fluent never guesses a subscription from a customer, plan or quantity.
 
 ## Develop
 
+See the [development guide](docs/Development.md) for setup and contributor checks.
+
 ```bash
 uv sync --locked
 uv run ruff check .
