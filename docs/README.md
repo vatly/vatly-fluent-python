@@ -1,24 +1,69 @@
-# Getting started
+# Vatly Fluent Python
 
-> **Alpha — under active development. Every alpha release may include breaking changes. Pin exact versions during alpha.**
+Build checkout, customer and subscription flows without tying billing to a web
+framework. Fluent composes the async SDK and your storage driver. Vatly is the
+European merchant of record for AI, software and digital products.
 
-Use Fluent for a billing integration; use the raw SDK for direct API calls. Fluent
-depends on `vatly-api-python==0.1.0a2` and Python 3.10+. Follow the [quick start](../README.md)
-for your first hosted checkout, then add storage for signed events and ownership.
+**Alpha — under active development. Every alpha release may include breaking changes. Pin exact versions during alpha.**
 
-| Guide | Responsibility |
+## Install and create a checkout
+
+```bash
+python -m pip install vatly-fluent-python==0.1.0a2
+```
+
+Python 3.10+ is required. This installs `vatly-api-python==0.1.0a2` too. Set
+`VATLY_API_KEY` on the server, then run this async function with your event loop.
+
+```python
+from vatly import AsyncVatlyClient, RequestOptions
+from vatly_fluent import Vatly, Wiring
+
+
+async def example():
+    async with AsyncVatlyClient() as api:
+        vatly = Vatly(
+            Wiring(
+                api=api,
+                redirect_url_success="https://app.example.com/billing/success",
+                redirect_url_canceled="https://app.example.com/billing/canceled",
+            )
+        )
+        checkout = (
+            await vatly.checkout_builder()
+            .with_items(
+                [
+                    {"id": "one_off_product_example", "quantity": 1},
+                ]
+            )
+            .create(options=RequestOptions(idempotency_key="purchase:42"))
+        )
+        return checkout.get_url()
+```
+
+Replace the product ID and persist the purchase key before making the request.
+Redirect the buyer to the URL. This minimal example does not store ownership or
+process webhooks; add [storage](CoreConcepts.md) before granting product access.
+
+## Build your integration
+
+Functions in these guides accept the configured `vatly` instance from
+[Configuration](Configuration.md). Await them inside your application's async
+lifespan. IDs and billable entities must be authorized by your application.
+
+| Guide | Task |
 | --- | --- |
-| [Configuration](Configuration.md) | Keys, lifecycle, dependency bootstrap, release |
-| [Core concepts](CoreConcepts.md) | Driver contracts, entities, scope and transactions |
-| [Checkouts](Checkouts.md) | One-off/mixed/subscription builders and retries |
-| [Customers](Customers.md) | Billing identity and immutable bindings |
-| [Customer portal](CustomerPortal.md) | Short-lived hosted portal sessions |
-| [Subscriptions](Subscriptions.md) | Swaps, cancellation, state, reconciliation |
-| [Orders](Orders.md) | Lines, money and reversals |
-| [Webhooks](Webhooks.md) | Signed snapshots, atomic processing and outbox |
-| [Testing](Testing.md) | SQLite example, mock transport and local checks |
-| [Porting](Porting.md) | Source provenance and intentional differences |
+| [Configuration](Configuration.md) | Wire the SDK, redirects and storage |
+| [Core concepts](CoreConcepts.md) | Implement drivers and preserve ownership |
+| [Checkouts](Checkouts.md) | Sell a cart or a subscription |
+| [Customers](Customers.md) | Create, bind and look up billing identities |
+| [Customer portal](CustomerPortal.md) | Send a buyer to hosted account management |
+| [Subscriptions](Subscriptions.md) | Change plans, cancel, resume and reconcile |
+| [Orders](Orders.md) | Read invoices, lines and reversals |
+| [Webhooks](Webhooks.md) | Persist signed events once in a transaction |
+| [Testing](Testing.md) | Run a checkout without network access |
+| [Porting](Porting.md) | Map JS/PHP concepts to Python |
 
-Pushes to `main` affecting `docs/**` notify `vatly/vatly-docs`, which imports
-these guides automatically. The notifier requires the Actions secret
-`VATLY_DOCS_DISPATCH_TOKEN` with Contents: write access to `vatly/vatly-docs`.
+[API reference](https://docs.vatly.com/api-reference) documents the underlying
+requests. These examples are executed with published `0.1.0a2` packages and local
+fixtures; no real payments or account changes occur in documentation tests.
