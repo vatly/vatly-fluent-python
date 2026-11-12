@@ -293,17 +293,146 @@ async def test_subscription_cancellation_resume_and_null_mandate(harness):
     sub = resource("Subscription", id="subscription_a")
     await deliver(vatly, "subscription.started", sub)
     end = "2027-01-01T00:00:00Z"
+    canceled = {
+        **sub,
+        "canceledAt": "2026-11-09T21:19:57Z",
+        "endedAt": None,
+        "renewedUntil": None,
+        "nextRenewalAt": end,
+        "status": "on_grace_period",
+    }
     await deliver(
         vatly,
         "subscription.canceled_with_grace_period",
-        {**sub, "canceledAt": end, "status": "on_grace_period"},
+        canceled,
     )
     local = await db.subscriptions.find_by_vatly_id("subscription_a")
     assert local.ends_at.isoformat().startswith("2027-01-01")
+    responses.extend([canceled, canceled])
+    handle = vatly.subscription(local)
+    for _ in range(2):
+        await handle.sync()
+        assert handle.model().ends_at == datetime(2027, 1, 1, tzinfo=timezone.utc)
+    # A missed resume delivery must clear the prior cancellation deadline on GET.
+    responses.append(sub)
+    await handle.sync()
+    assert handle.model().ends_at is None
     await deliver(vatly, "subscription.billing_updated", {**sub, "mandate": None})
     assert (await db.subscriptions.find_by_vatly_id("subscription_a")).resource.mandate is not None
     await deliver(vatly, "subscription.resumed", sub)
     assert (await db.subscriptions.find_by_vatly_id("subscription_a")).ends_at is None
+
+
+@pytest.mark.parametrize("old_end", [None, "2026-11-09T21:19:57Z", "2026-12-09T21:19:19Z"])
+async def test_sync_repairs_legacy_deadline_and_clears_it_after_missed_resume(harness, old_end):
+    vatly, db, calls, responses = harness
+    canceled = resource(
+        "Subscription",
+        id="subscription_a",
+        status="on_grace_period",
+        canceledAt="2026-11-09T21:19:57Z",
+        endedAt=None,
+        renewedUntil=None,
+        nextRenewalAt="2026-12-09T21:19:19Z",
+    )
+    local = await db.subscriptions.store(
+        LocalSubscription(resource=canceled, ends_at=old_end, entity=TEAM)
+    )
+    responses.extend([canceled, canceled, {**canceled, "status": "active", "canceledAt": None}])
+    handle = vatly.subscription(local)
+    for _ in range(2):
+        await handle.sync()
+        assert handle.model().ends_at == datetime(2026, 12, 9, 21, 19, 19, tzinfo=timezone.utc)
+    await handle.sync()
+    assert handle.model().ends_at is None
+
+
+@pytest.mark.parametrize("period", ["nextRenewalAt", "renewedUntil", "trialUntil", None])
+async def test_grace_period_deadline_and_missing_deadline_rollback(harness, period):
+    vatly, db, calls, responses = harness
+    sub = resource("Subscription", id="subscription_a")
+    await deliver(vatly, "subscription.started", sub)
+    canceled = {
+        **sub,
+        "status": "on_grace_period",
+        "endedAt": None,
+        "canceledAt": "2026-11-09T21:19:57Z",
+        "nextRenewalAt": None,
+        "renewedUntil": None,
+        "trialUntil": None,
+    }
+    if period is not None:
+        canceled[period] = "2026-12-09T21:19:19Z"
+        await deliver(vatly, "subscription.canceled_with_grace_period", canceled)
+        local = await db.subscriptions.find_by_vatly_id("subscription_a")
+        expiry = datetime(2026, 12, 9, 21, 19, 19, tzinfo=timezone.utc)
+        assert local.ends_at == expiry
+        assert subscription_state(local.ends_at, expiry - timedelta(seconds=1)).valid
+        assert subscription_state(local.ends_at, expiry).ended
+    else:
+        with pytest.raises(FluentError, match="expiry"):
+            await deliver(vatly, "subscription.canceled_with_grace_period", canceled)
+        assert (
+            await db.subscriptions.find_by_vatly_id("subscription_a")
+        ).resource.status == "active"
+        assert db.db.execute("SELECT COUNT(*) FROM outbox").fetchone()[0] == 2
+        assert db.db.execute("SELECT COUNT(*) FROM webhook_calls").fetchone()[0] == 1
+
+
+@pytest.mark.parametrize("cycle_field", ["nextRenewalAt", "renewedUntil"])
+async def test_conflicting_trial_and_cycle_deadlines_roll_back(harness, cycle_field):
+    vatly, db, calls, responses = harness
+    sub = resource("Subscription", id="subscription_a")
+    await deliver(vatly, "subscription.started", sub)
+    local = await db.subscriptions.find_by_vatly_id("subscription_a")
+    grace = {
+        **sub,
+        "status": "on_grace_period",
+        "endedAt": None,
+        "canceledAt": "2026-11-09T21:19:57Z",
+        "nextRenewalAt": None,
+        "renewedUntil": None,
+        "trialUntil": "2026-11-20T00:00:00Z",
+        cycle_field: "2026-12-09T21:19:19Z",
+    }
+    with pytest.raises(FluentError, match="Ambiguous grace deadline"):
+        await deliver(vatly, "subscription.canceled_with_grace_period", grace)
+    responses.append(grace)
+    handle = vatly.subscription(local)
+    with pytest.raises(FluentError, match="Ambiguous grace deadline"):
+        await handle.sync()
+    assert handle.model().resource.status == "active"
+    assert (await db.subscriptions.find_by_vatly_id("subscription_a")).resource.status == "active"
+    assert db.db.execute("SELECT COUNT(*) FROM outbox").fetchone()[0] == 2
+    assert db.db.execute("SELECT COUNT(*) FROM webhook_calls").fetchone()[0] == 1
+
+    # Equal trial/cycle deadlines are unambiguous, even with different offsets.
+    grace["trialUntil"] = "2026-12-09T22:19:19+01:00"
+    await deliver(vatly, "subscription.canceled_with_grace_period", grace)
+    saved = await db.subscriptions.find_by_vatly_id("subscription_a")
+    assert saved.ends_at == datetime(2026, 12, 9, 21, 19, 19, tzinfo=timezone.utc)
+
+
+async def test_grace_preserves_known_expiry_and_immediate_cancellation_uses_actual_end(harness):
+    vatly, db, calls, responses = harness
+    sub = resource("Subscription", id="subscription_a")
+    end = datetime(2026, 12, 9, tzinfo=timezone.utc)
+    local = await db.subscriptions.store(LocalSubscription(resource=sub, ends_at=end))
+    grace = {
+        **sub,
+        "status": "on_grace_period",
+        "canceledAt": "2026-11-09T21:19:57Z",
+        "nextRenewalAt": None,
+        "renewedUntil": None,
+        "trialUntil": "2026-10-01T00:00:00Z",  # Historical trial is not current grace.
+    }
+    responses.append(grace)
+    handle = await vatly.subscription(local).sync()
+    assert handle.model().ends_at == end
+    immediate = {**grace, "status": "canceled", "endedAt": "2026-11-09T21:20:00Z"}
+    await deliver(vatly, "subscription.canceled_immediately", immediate)
+    saved = await db.subscriptions.find_by_vatly_id("subscription_a")
+    assert saved.ends_at == datetime(2026, 11, 9, 21, 20, tzinfo=timezone.utc)
 
 
 async def test_handles_use_remote_response_for_scheduled_swap_and_decimal_money(harness):

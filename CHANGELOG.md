@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0a2 — Unreleased
+
+- Derive grace expiry from period/trial deadlines, not cancellation request time.
+- Share lifecycle mapping across signed reactions, sync and Django reconciliation;
+  repair legacy expiry on sync and clear it after missed resume.
+- Reject unknown grace expiry transactionally rather than guessing a deadline.
+- Reject conflicting trial/cycle grace deadlines; the API omits core's trial flag.
+- Require corrected SDK 0.1.0a2; refresh the unpublished bootstrap wheel.
+
 ## 0.1.0a1 — Unreleased
 
 > Alpha — under active development. Every alpha release may include breaking changes. Pin exact versions during alpha.

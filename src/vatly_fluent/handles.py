@@ -6,7 +6,7 @@ from typing import Any
 
 from typing_extensions import Self
 from vatly import RequestOptions
-from vatly.models import Chargeback, Order, OrderLine, Refund
+from vatly.models import Chargeback, Order, OrderLine, Refund, Subscription
 
 from .contracts import (
     LocalSubscription,
@@ -14,6 +14,7 @@ from .contracts import (
     SubscriptionState,
     Wiring,
     required,
+    subscription_ends_at,
     subscription_state,
 )
 
@@ -29,9 +30,10 @@ class SubscriptionHandle:
     def state(self) -> SubscriptionState:
         return subscription_state(self._record.ends_at)
 
-    async def _save(self, data: dict[str, Any]) -> Self:
+    async def _save(self, resource: Subscription) -> Self:
         self._record = await required(self._wiring.subscriptions, "subscriptions").update(
-            self._record.resource.id, data
+            self._record.resource.id,
+            {"resource": resource, "ends_at": subscription_ends_at(resource, self._record.ends_at)},
         )
         return self
 
@@ -48,7 +50,7 @@ class SubscriptionHandle:
             {**(body or {}), "subscriptionPlanId": plan_id},
             options=options,
         )
-        return await self._save({"resource": response})
+        return await self._save(response)
 
     async def swap_and_invoice(
         self,
@@ -81,7 +83,7 @@ class SubscriptionHandle:
         response = await self._wiring.api.subscriptions.resume(
             self._record.resource.id, options=options
         )
-        return await self._save({"resource": response, "ends_at": None})
+        return await self._save(response)
 
     async def cancel(
         self, *, immediately: bool | None = None, options: RequestOptions | None = None
@@ -94,9 +96,7 @@ class SubscriptionHandle:
     async def sync(self) -> Self:
         required(self._wiring.subscriptions, "subscriptions")
         response = await self._wiring.api.subscriptions.get(self._record.resource.id)
-        return await self._save(
-            {"resource": response, "ends_at": response.ended_at or response.canceled_at}
-        )
+        return await self._save(response)
 
     async def scheduled_update(self) -> Any:
         return (await self._wiring.api.subscriptions.get(self._record.resource.id)).scheduled_update

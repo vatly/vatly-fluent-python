@@ -20,13 +20,14 @@ from .contracts import (
     WebhookCalls,
     WebhookReaction,
     Wiring,
+    subscription_ends_at,
     subscription_state,
 )
 from .customers import CustomerHandle, CustomerService
 from .handles import OrderHandle, SubscriptionHandle
 from .webhooks import WebhookProcessor
 
-__version__ = "0.1.0a1"
+__version__ = "0.1.0a2"
 
 __all__ = [
     "Vatly",
@@ -50,6 +51,7 @@ __all__ = [
     "WebhookReaction",
     "FluentError",
     "SubscriptionState",
+    "subscription_ends_at",
     "subscription_state",
     "CheckoutResolution",
     "TestHelpers",

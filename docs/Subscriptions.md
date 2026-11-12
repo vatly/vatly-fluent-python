@@ -8,7 +8,20 @@ the API response, so a scheduled swap does not prematurely replace the active pl
 
 `cancel(immediately=True)` sends the API mutation and waits for signed events to
 update local cancellation state. `resume()` clears local `ends_at` after API success.
-`sync()` saves the complete snapshot and sets `ends_at=ended_at or canceled_at`.
+`sync()` saves the complete snapshot and derives expiry through `subscription_ends_at`.
+Grace expiry uses the next renewal, renewed-until or trial end (in that order),
+excluding historical dates at/before cancellation, then a previously known valid
+expiry. Conflicting usable trial and cycle deadlines raise `FluentError` rather
+than guessing whether the subscription was on trial; the API omits that flag.
+Equal instants are not conflicting, even with different timezone offsets.
+`canceled_at` is the request time, never a grace deadline. If no deadline
+is available, processing also raises `FluentError` and rolls back; monitor failures and
+reconcile instead of assuming a new expiry. The prior committed state remains
+until recovery, so hosts must apply their own stale-state entitlement policy.
+Terminal cancellation uses `ended_at` or `canceled_at`; an active snapshot clears
+stale expiry after a missed resume. Webhooks and Django reconciliation use the same
+mapping. Core's internal `ends_at` is not currently exposed; `next_renewal_at` alone
+must not be assumed universally present after cancellation.
 `scheduled_update`, `has_scheduled_update`, and `cancellation_reason` read remotely.
 `update_billing(body)` returns a hosted URL; both redirect defaults/overrides are required.
 

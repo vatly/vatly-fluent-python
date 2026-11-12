@@ -13,7 +13,7 @@ transactions and jobs. Python 3.10+, fully typed, **async-first**.
 Once both packages are published:
 
 ```bash
-pip install vatly-fluent==0.1.0a1 vatly-sdk==0.1.0a1
+pip install vatly-fluent==0.1.0a2 vatly-sdk==0.1.0a2
 ```
 
 Nothing is published yet. For development, run `.agents/setup` or `uv sync --locked`.
