@@ -519,3 +519,105 @@ async def test_unique_links_and_tenant_mode_isolation(harness, tmp_path):
     )
     assert await other.checkouts.find("checkout_a") is None
     other.close()
+
+
+async def test_customer_creation_lookup_and_detached_identity(harness):
+    vatly, db, calls, responses = harness
+    customer = {**resource("Customer", id="customer_new"), "name": "Original"}
+    with pytest.raises(FluentError, match="email"):
+        await vatly.customers.create_for("user_new", CustomerProfile())
+    assert not calls
+    responses.append(customer)
+    created = await vatly.customers.create_for(
+        "user_new",
+        CustomerProfile(email="new@example.test", name="Original"),
+        options=RequestOptions(idempotency_key="new-user"),
+    )
+    assert created.id == "customer_new"
+    assert calls[-1].headers["Idempotency-Key"] == "new-user"
+    assert json.loads(calls[-1].content)["email"] == "new@example.test"
+    with pytest.raises(FluentError, match="already bound"):
+        await vatly.customers.create_for("user_new", CustomerProfile(email="other@example.test"))
+    assert await vatly.customers.find_by_host_customer_id("missing") is None
+    responses.extend([customer, customer, customer, {**customer, "name": "Synced"}])
+    assert (await vatly.customers.find_by_host_customer_id("user_new")).id == created.id
+    assert (await vatly.customers.find_by_vatly_customer_id(created.id)).id == created.id
+    handle = vatly.customer(created.id)
+    assert (await handle.identity())["name"] == "Original"
+    await handle.sync()
+    assert await handle.name() == "Synced"
+    responses.append(resource("Customer", id="customer_unattributed"))
+    await vatly.customers.create_unattributed(CustomerProfile(email="unbound@example.test"))
+    assert await db.bindings.host_customer_id_for("customer_unattributed") is None
+
+
+async def test_checkout_customer_claim_missing_and_not_found(harness):
+    vatly, db, calls, responses = harness
+    responses.append(httpx.Response(404))
+    assert await vatly.customer_id_from_checkout("missing") is None
+    responses.append(resource("Checkout", customerId=None))
+    assert not await vatly.claim_customer_from_checkout("checkout_pending", "host")
+    responses.append(resource("Checkout", customerId="customer_claimed"))
+    assert await vatly.claim_customer_from_checkout("checkout_owned", "host")
+    assert await db.bindings.vatly_customer_id_for("host") == "customer_claimed"
+
+
+@pytest.mark.parametrize(
+    "reversed,remaining,partial,full",
+    [
+        ("0.00", "12.00", False, False),
+        ("3.25", "8.75", True, False),
+        ("12.00", "0.00", False, True),
+    ],
+)
+async def test_order_reversal_state_uses_decimal_amounts(
+    harness, reversed, remaining, partial, full
+):
+    vatly, db, calls, responses = harness
+    responses.append(
+        resource(
+            "Order",
+            reversedSubtotal={"value": reversed, "currency": "EUR"},
+            refundableSubtotal={"value": remaining, "currency": "EUR"},
+        )
+    )
+    order = vatly.order("order_a")
+    assert await order.is_partially_reversed() is partial
+    assert await order.is_fully_reversed() is full
+    assert len(calls) == 1
+    assert await order.refunds() == []
+    assert await order.chargebacks() == []
+    assert await order.lines()
+
+
+async def test_sqlite_driver_rejects_missing_records_and_binding_reassignment(harness):
+    vatly, db, calls, responses = harness
+    with pytest.raises(FluentError, match="Missing resource"):
+        await db.subscriptions.update("missing", {"ends_at": None})
+    with pytest.raises(FluentError, match="Missing checkout"):
+        await db.checkouts.link("missing", "order", "order_a")
+    await db.bindings.bind("customer_a", "host_a")
+    with pytest.raises(FluentError, match="reassigned"):
+        await db.bindings.bind("customer_b", "host_a")
+    with pytest.raises(FluentError, match="reassigned"):
+        await db.bindings.bind("customer_a", "host_b")
+    assert await db.bindings.vatly_customer_id_for("host_a") == "customer_a"
+    assert await db.bindings.host_customer_id_for("customer_a") == "host_a"
+
+
+async def test_email_lookup_matches_and_empty_results(harness):
+    vatly, db, calls, responses = harness
+    links = {
+        "self": {"href": "https://api.vatly.com/v1/customers", "type": "application/json"},
+        "next": None,
+        "previous": None,
+    }
+    responses.extend(
+        [
+            {"data": [resource("Customer", id="customer_found")], "count": 1, "links": links},
+            {"data": [], "count": 0, "links": links},
+        ]
+    )
+    assert (await vatly.customers.find_one_by_email("found@example.test")).id == "customer_found"
+    assert await vatly.customers.find_one_by_email("missing@example.test") is None
+    assert calls[0].url.params["email"] == "found@example.test"
