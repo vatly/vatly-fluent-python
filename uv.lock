@@ -1290,7 +1290,7 @@ wheels = [
 
 [[package]]
 name = "vatly-fluent"
-version = "0.1.0a1"
+version = "0.1.0a2"
 source = { editable = "." }
 dependencies = [
     { name = "vatly-sdk" },
@@ -1306,7 +1306,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "vatly-sdk", path = "vendor/vatly_sdk-0.1.0a1-py3-none-any.whl" }]
+requires-dist = [{ name = "vatly-sdk", path = "vendor/vatly_sdk-0.1.0a2-py3-none-any.whl" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1319,15 +1319,15 @@ dev = [
 
 [[package]]
 name = "vatly-sdk"
-version = "0.1.0a1"
-source = { path = "vendor/vatly_sdk-0.1.0a1-py3-none-any.whl" }
+version = "0.1.0a2"
+source = { path = "vendor/vatly_sdk-0.1.0a2-py3-none-any.whl" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
 wheels = [
-    { filename = "vatly_sdk-0.1.0a1-py3-none-any.whl", hash = "sha256:6feb18368c0f65cd11e64512dcb555d58c6a6cc65ef3f34e9c828f246d71ed45" },
+    { filename = "vatly_sdk-0.1.0a2-py3-none-any.whl", hash = "sha256:18332147498bef93303b43b88726119eb3ae141fa5921fd04bd355929d8533ac" },
 ]
 
 [package.metadata]

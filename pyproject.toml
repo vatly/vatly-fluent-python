@@ -4,12 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vatly-fluent"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Framework-independent fluent billing integrations built on the Vatly Python SDK"
 requires-python = ">=3.10"
 readme = "README.md"
 license = "MIT"
-dependencies = ["vatly-sdk==0.1.0a1"]
+dependencies = ["vatly-sdk==0.1.0a2"]
 classifiers = ["Development Status :: 3 - Alpha", "Typing :: Typed", "Programming Language :: Python :: 3"]
 
 [project.urls]
@@ -24,7 +24,7 @@ dev = ["pytest>=8,<10", "pytest-asyncio>=1,<2", "ruff>=0.14,<1", "mypy>=1.18,<2"
 required-version = ">=0.12.9"
 
 [tool.uv.sources]
-vatly-sdk = {path = "vendor/vatly_sdk-0.1.0a1-py3-none-any.whl"}
+vatly-sdk = {path = "vendor/vatly_sdk-0.1.0a2-py3-none-any.whl"}
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vatly_fluent"]

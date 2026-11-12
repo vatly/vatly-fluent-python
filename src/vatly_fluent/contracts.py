@@ -44,6 +44,40 @@ class LocalSubscription(Stored[Subscription]):
     ends_at: datetime | None = None
 
 
+def subscription_ends_at(
+    resource: Subscription, previous: datetime | None = None
+) -> datetime | None:
+    """Map lifecycle snapshots to access expiry, not cancellation request time.
+
+    Core's grace deadline is the trial/cycle end. canceledAt is raisedAt; the
+    internal ends_at is not exposed by the current API. Missing expiry fails
+    processing instead of silently granting unbounded access or ending it now.
+    """
+    if resource.ended_at is not None:
+        return resource.ended_at
+    if resource.status == "on_grace_period":
+        # Historical dates and pre-fix cancellation timestamps are not deadlines.
+        cycle, renewed, trial, prior = (
+            end
+            if end is not None and (resource.canceled_at is None or end > resource.canceled_at)
+            else None
+            for end in (
+                resource.next_renewal_at,
+                resource.renewed_until,
+                resource.trial_until,
+                previous,
+            )
+        )
+        cycle = cycle or renewed
+        # Core chooses trial or cycle end using an onTrial flag absent from the API.
+        if trial is not None and cycle is not None and trial != cycle:
+            raise FluentError("Ambiguous grace deadline; reconcile before granting access")
+        if end := cycle or trial or prior:
+            return end
+        raise FluentError("Grace-period expiry is unavailable; reconcile before granting access")
+    return resource.canceled_at if resource.status == "canceled" else None
+
+
 @dataclass(frozen=True)
 class CheckoutRecord:
     checkout_id: str

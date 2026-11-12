@@ -15,6 +15,7 @@ from .contracts import (
     Stored,
     Wiring,
     required,
+    subscription_ends_at,
 )
 from .linkage import checkout_for, link_order, preserve_entity
 
@@ -97,21 +98,15 @@ class WebhookProcessor:
                 fields: dict[str, Any] = {
                     "resource": snapshot,
                     "entity": preserve_entity(existing.entity, entity),
+                    "ends_at": subscription_ends_at(resource, existing.ends_at),
                 }
-                if name == "subscription.resumed":
-                    fields["ends_at"] = None
-                elif name.startswith("subscription.canceled") or name in {
-                    "subscription.cancellation_grace_period_completed",
-                    "subscription.started",
-                }:
-                    fields["ends_at"] = resource.ended_at or resource.canceled_at
                 await wiring.subscriptions.update(resource.id, fields)
             else:
                 local = await wiring.subscriptions.store(
                     LocalSubscription(
                         resource=resource,
                         entity=entity,
-                        ends_at=resource.ended_at or resource.canceled_at,
+                        ends_at=subscription_ends_at(resource),
                     )
                 )
                 if local and wiring.events:
