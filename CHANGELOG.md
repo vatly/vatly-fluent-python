@@ -2,6 +2,8 @@
 
 ## 0.1.0a2 — Unreleased
 
+- Use distribution `vatly-fluent-python`; imports remain `vatly_fluent`.
+- Depend on the renamed SDK distribution `vatly-api-python` (import `vatly`).
 - Derive grace expiry from period/trial deadlines, not cancellation request time.
 - Share lifecycle mapping across signed reactions, sync and Django reconciliation;
   repair legacy expiry on sync and clear it after missed resume.

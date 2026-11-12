@@ -5,7 +5,7 @@
 Integrate Vatly billing without tying your application to a framework or database.
 Fluent adds chainable checkout/subscription builders, customer and subscription
 handles, pluggable persistence, and a signed webhook-to-domain-event pipeline on
-top of `vatly-sdk`. Your application owns authentication, entitlements, storage,
+top of `vatly-api-python`. Your application owns authentication, entitlements, storage,
 transactions and jobs. Python 3.10+, fully typed, **async-first**.
 
 ## Install
@@ -13,7 +13,7 @@ transactions and jobs. Python 3.10+, fully typed, **async-first**.
 Once both packages are published:
 
 ```bash
-pip install vatly-fluent==0.1.0a2 vatly-sdk==0.1.0a2
+pip install vatly-fluent-python==0.1.0a2 vatly-api-python==0.1.0a2
 ```
 
 Nothing is published yet. For development, run `.agents/setup` or `uv sync --locked`.

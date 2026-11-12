@@ -3,7 +3,7 @@
 > **Alpha — under active development. Every alpha release may include breaking changes. Pin exact versions during alpha.**
 
 Use Fluent for a billing integration; use the raw SDK for direct API calls. Fluent
-depends on `vatly-sdk==0.1.0a2` and Python 3.10+. Follow the [quick start](../README.md)
+depends on `vatly-api-python==0.1.0a2` and Python 3.10+. Follow the [quick start](../README.md)
 for your first hosted checkout, then add storage for signed events and ownership.
 
 | Guide | Responsibility |
