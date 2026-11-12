@@ -1,6 +1,9 @@
-# Development and release
+---
+title: Development and release
+description: Set up the repository, test billing integrations and build the Fluent package locally.
+---
 
-Set up the repository, test billing integrations and build the Fluent package locally.
+# Development and release
 
 ## Set up the repository
 
@@ -62,7 +65,8 @@ changes; do not silently replace a version's wheel.
 Keep guides directly under `docs/` and link each page from [the overview](README.md).
 Pushes to `main` affecting `docs/**` notify `vatly/vatly-docs`. The notifier needs
 `VATLY_DOCS_DISPATCH_TOKEN` with Contents: write access to that repository.
-Each page's introductory sentence supplies its synced description.
+The sync uses an explicit frontmatter description when present, otherwise the
+page's introductory sentence.
 
 ## Prepare a release
 
