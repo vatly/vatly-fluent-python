@@ -31,14 +31,28 @@ async def link_order(wiring: Wiring, record: CheckoutRecord, order: Order) -> No
             await wiring.orders.update(
                 order.id, {"entity": preserve_entity(existing.entity, record.entity)}
             )
-    for line in order.lines:
-        # Never mistake historical subscription_plan IDs for subscription IDs.
-        if line.product_type != "subscription" or not line.product_id:
-            continue
-        await records.link(record.checkout_id, "subscription", line.product_id)
+    for sub_id in subscription_ids(order):
+        await records.link(record.checkout_id, "subscription", sub_id)
         if wiring.subscriptions:
-            sub = await wiring.subscriptions.find_by_vatly_id(line.product_id)
+            sub = await wiring.subscriptions.find_by_vatly_id(sub_id)
             if sub:
                 await wiring.subscriptions.update(
-                    line.product_id, {"entity": preserve_entity(sub.entity, record.entity)}
+                    sub_id, {"entity": preserve_entity(sub.entity, record.entity)}
                 )
+
+
+def subscription_ids(order: Order) -> tuple[str, ...]:
+    """Distinct subscription IDs the order's lines reference, in line order.
+
+    Signup lines carry their subscription in ``relatedResources.subscriptionId``
+    (null until core resolves it); renewal lines also reference it as their
+    product. A ``subscription_plan`` product ID is a plan, never a subscription.
+    """
+    ids: dict[str, None] = {}
+    for line in order.lines:
+        related = line.related_resources
+        if related is not None and related.subscription_id:
+            ids[related.subscription_id] = None
+        if line.product_type == "subscription" and line.product_id:
+            ids[line.product_id] = None
+    return tuple(ids)

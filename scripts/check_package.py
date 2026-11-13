@@ -1,4 +1,4 @@
-"""Isolated wheel installation including the unpublished SDK bootstrap."""
+"""Isolated wheel installation; the pinned SDK resolves from PyPI."""
 
 import pathlib
 import subprocess
@@ -6,12 +6,11 @@ import tempfile
 
 root = pathlib.Path(__file__).resolve().parents[1]
 wheel = next((root / "dist").glob("*.whl"))
-sdk = next((root / "vendor").glob("*.whl"))
 with tempfile.TemporaryDirectory() as tmp:
     env = pathlib.Path(tmp) / "venv"
     subprocess.run(["uv", "venv", str(env)], check=True)
     python = str(env / "bin/python")
-    subprocess.run(["uv", "pip", "install", "--python", python, str(sdk), str(wheel)], check=True)
+    subprocess.run(["uv", "pip", "install", "--python", python, str(wheel)], check=True)
     subprocess.run(
         [
             python,

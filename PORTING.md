@@ -30,11 +30,11 @@ customer-binding fallback. `EntityRef(kind, id)` supports teams/users/organizati
 billing identities and cannot establish entitlement ownership. Drivers enforce
 immutable links and scope every lookup by tenant, storefront and API mode.
 
-The original port targeted an earlier design of core
-[PR #2910](https://github.com/sandervanhooft/vatlify/pull/2910). As of 2026-11-12,
-that unmerged proposal instead adds nullable `relatedResources.subscriptionId`
-and preserves `productType`/`productId`. This alpha does not consume the new field;
-initial subscription linkage needs a separately tested compatibility update.
+Core [PR #2910](https://github.com/sandervanhooft/vatlify/pull/2910) adds nullable
+`lines[].relatedResources.subscriptionId` and preserves `productType`/`productId`.
+Linkage reads that field (and `subscription` renewal product IDs) to link a checkout's
+order to its subscriptions. A null `subscriptionId` on a signup line means core has
+not resolved it yet; frozen webhook snapshots keep the original value.
 `subscription_plan` lines are preserved but never treated as subscription IDs.
 Quantity does not multiply subscription IDs; two checkout plan lines can produce
 distinct subscription IDs for the same plan. `reconcile_checkout` explicitly reads
