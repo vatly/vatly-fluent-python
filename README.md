@@ -12,7 +12,7 @@ transactions and jobs. Python 3.10+, fully typed, **async-first**.
 ## Install
 
 ```bash
-pip install vatly-fluent-python==0.1.0a2 vatly-api-python==0.1.0a2
+pip install vatly-fluent-python==0.1.0a3 vatly-api-python==0.1.0a3
 ```
 
 For development, run `.agents/setup` or `uv sync --locked`. Both development and
