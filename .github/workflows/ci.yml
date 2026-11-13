@@ -28,6 +28,6 @@ jobs:
           version: '0.12.9'
           python-version: '3.12'
       - run: >-
-          uv run --isolated --no-project --default-index https://pypi.org/simple
-          --with 'vatly-fluent-python==0.1.0a2' --with 'pytest>=8,<10'
+          uv run --isolated --no-project --refresh --default-index https://pypi.org/simple
+          --with 'vatly-fluent-python==0.1.0a3' --with 'pytest>=8,<10'
           --with 'pytest-asyncio>=1,<2' python -m pytest -q tests/test_docs.py
