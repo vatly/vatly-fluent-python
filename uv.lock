@@ -1571,27 +1571,21 @@ wheels = [
 
 [[package]]
 name = "vatly-api-python"
-version = "0.1.0a2"
-source = { path = "vendor/vatly_api_python-0.1.0a2-py3-none-any.whl" }
+version = "0.1.0a3"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/24/06/3fe5113356153b6619552c6e0c7f33c6c7771d27fda2085172276edc26d8/vatly_api_python-0.1.0a3.tar.gz", hash = "sha256:aa8af3f52d6570a869aceb7a7c6ee64ddf85f124ed1bf504eabc28228b3ad07d", size = 112463, upload-time = "2026-11-13T16:59:55.29Z" }
 wheels = [
-    { filename = "vatly_api_python-0.1.0a2-py3-none-any.whl", hash = "sha256:c85d3d4fdc6573820b0916010c8f968c2201bccdb50fc791d88274794b8fd774" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "httpx", specifier = ">=0.27,<1" },
-    { name = "pydantic", specifier = ">=2.11,<3" },
-    { name = "typing-extensions", specifier = ">=4.12,<5" },
+    { url = "https://files.pythonhosted.org/packages/32/d3/510c5b139fc8a180d82d0ae0dd7b6ccc46a732493bd4cdab198c47d5a5b9/vatly_api_python-0.1.0a3-py3-none-any.whl", hash = "sha256:436f4d2ec62a96fdb71fd8431996a69bb0358fd690d792df643a344ea961029b", size = 39347, upload-time = "2026-11-13T16:59:54.028Z" },
 ]
 
 [[package]]
 name = "vatly-fluent-python"
-version = "0.1.0a2"
+version = "0.1.0a3"
 source = { editable = "." }
 dependencies = [
     { name = "vatly-api-python" },
@@ -1608,7 +1602,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "vatly-api-python", path = "vendor/vatly_api_python-0.1.0a2-py3-none-any.whl" }]
+requires-dist = [{ name = "vatly-api-python", specifier = "==0.1.0a3" }]
 
 [package.metadata.requires-dev]
 dev = [

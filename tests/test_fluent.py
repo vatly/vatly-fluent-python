@@ -176,9 +176,14 @@ async def test_out_of_order_own_record_linkage_not_customer_id(harness, order_of
     await db.checkouts.record(CheckoutRecord("checkout_a", TEAM, True))
     await db.bindings.bind("customer_shared", "WRONG_ENTITY")
     order = resource("Order", id="order_a", customerId="customer_shared", status="paid")
-    order["lines"][0].update(productType="subscription", productId="subscription_a", quantity=3)
+    # Signup lines reference the plan; relatedResources names each line's subscription.
+    signup = {**order["lines"][0], "productType": "subscription_plan", "quantity": 3}
+    signup.update(
+        productId="subscription_plan_pro", relatedResources={"subscriptionId": "subscription_a"}
+    )
     # Two plan lines may be the same plan, but own distinct subscription IDs.
-    order["lines"].append({**order["lines"][0], "id": "line_b", "productId": "subscription_b"})
+    second = {**signup, "id": "line_b", "relatedResources": {"subscriptionId": "subscription_b"}}
+    order["lines"] = [signup, second]
     checkout = resource(
         "Checkout", id="checkout_a", orderId="order_a", customerId="customer_shared", status="paid"
     )
@@ -194,6 +199,7 @@ async def test_out_of_order_own_record_linkage_not_customer_id(harness, order_of
     assert (await db.orders.find_by_vatly_id("order_a")).entity == TEAM
     assert (await db.subscriptions.find_by_vatly_id("subscription_a")).entity == TEAM
     assert (await db.checkouts.find_for_resource("subscription", "subscription_b")).entity == TEAM
+    assert await db.checkouts.find_for_resource("subscription", "subscription_plan_pro") is None
     assert db.db.execute("SELECT COUNT(*) FROM webhook_calls").fetchone()[0] == 3
     assert db.db.execute("SELECT COUNT(*) FROM outbox").fetchone()[0] == 5
     assert not calls
@@ -456,7 +462,7 @@ async def test_handles_use_remote_response_for_scheduled_swap_and_decimal_money(
 
 
 @pytest.mark.parametrize("delay_first", [False, True])
-async def test_reconcile_initial_subscription_ids_bounded_404_and_legacy(
+async def test_reconcile_related_subscription_ids_bounded_404_unresolved_and_legacy(
     harness, monkeypatch, delay_first
 ):
     vatly, db, calls, responses = harness
@@ -468,20 +474,26 @@ async def test_reconcile_initial_subscription_ids_bounded_404_and_legacy(
     await db.checkouts.record(CheckoutRecord("checkout_a", TEAM, True))
     order = resource("Order", id="order_a")
     line = order["lines"][0]
+    plan_line = {**line, "productType": "subscription_plan", "productId": "subscription_plan_pro"}
     order["lines"] = [
-        {**line, "productType": "subscription", "productId": "subscription_a", "quantity": 7},
+        {**plan_line, "quantity": 7, "relatedResources": {"subscriptionId": "subscription_a"}},
         {
             **line,
             "id": "line_b",
             "productType": "subscription",
             "productId": "subscription_missing",
+            "relatedResources": {"subscriptionId": "subscription_missing"},
         },
+        # Historical plan lines: relatedResources omitted or null.
+        {**plan_line, "id": "line_c", "productId": "subscription_plan_legacy"},
         {
-            **line,
-            "id": "line_c",
-            "productType": "subscription_plan",
-            "productId": "subscription_plan_legacy",
+            **plan_line,
+            "id": "line_d",
+            "productId": "subscription_plan_old",
+            "relatedResources": None,
         },
+        # A signup whose subscription core has not resolved yet.
+        {**plan_line, "id": "line_e", "relatedResources": {"subscriptionId": None}},
     ]
     responses.extend([resource("Checkout", id="checkout_a", orderId="order_a"), order])
     if delay_first:
@@ -492,9 +504,15 @@ async def test_reconcile_initial_subscription_ids_bounded_404_and_legacy(
     result = await vatly.reconcile_checkout("checkout_a", attempts=2)
     assert [sub.id for sub in result.subscriptions] == ["subscription_a"]
     assert result.pending_subscription_ids == ("subscription_missing",)
-    assert result.legacy_plan_ids == ("subscription_plan_legacy",)
-    assert not any("subscription_plan_legacy" in str(call.url) for call in calls)
+    assert result.legacy_plan_ids == ("subscription_plan_legacy", "subscription_plan_old")
+    assert result.unresolved_line_ids == ("line_e",)
+    assert not any("subscription_plan" in str(call.url) for call in calls)
+    assert not responses
     assert (await db.checkouts.find_for_resource("subscription", "subscription_a")).entity == TEAM
+    assert (
+        await db.checkouts.find_for_resource("subscription", "subscription_missing")
+    ).entity == TEAM
+    assert await db.checkouts.find_for_resource("subscription", "subscription_plan_pro") is None
 
 
 def test_state_boundaries():

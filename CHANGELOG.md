@@ -1,7 +1,14 @@
 # Changelog
 
-## Unreleased
+## 0.1.0a3 — 2026-11-13
 
+- Link initial orders to their subscriptions through
+  `lines[].relatedResources.subscriptionId` in `order.paid`/`checkout.paid` reactions
+  and `reconcile_checkout`.
+- `reconcile_checkout` reports signup lines with a still-null `subscriptionId` as
+  `unresolved_line_ids`; `legacy_plan_ids` now lists only plan lines without
+  `relatedResources` (historical orders).
+- Require `vatly-api-python==0.1.0a3` from PyPI; drop the vendored SDK wheel.
 - Refresh installation, European positioning and published-package documentation.
 
 ## 0.1.0a2 — 2026-11-12

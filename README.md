@@ -15,10 +15,8 @@ transactions and jobs. Python 3.10+, fully typed, **async-first**.
 pip install vatly-fluent-python==0.1.0a2 vatly-api-python==0.1.0a2
 ```
 
-For development, run `.agents/setup` or `uv sync --locked`. The retained versioned
-wheel under `vendor/` pins the SDK for uv; normal package metadata depends on the
-exact SDK version from PyPI. It is not copied into Fluent's wheel.
-See [provenance](vendor/README.md).
+For development, run `.agents/setup` or `uv sync --locked`. Both development and
+package metadata use the exact SDK version from PyPI.
 
 ## First checkout
 
@@ -69,11 +67,11 @@ falls back to `customerId`, which is only billing identity and may be shared or 
 Metadata is correlation data, not authorization. A signed webhook authenticates
 Vatly's snapshot; it does not authorize a browser-provided entity ID.
 
-Current linkage follows `productType="subscription"` lines and their subscription
-IDs; `subscription_plan` lines remain plan references. The revised core PR #2910
-proposes additive `relatedResources.subscriptionId` instead of changing initial
-product references. This alpha does not consume that new field yet: initial
-subscription ownership remains unresolved. See the [compatibility notes](docs/Subscriptions.md).
+Linkage follows each order line's `relatedResources.subscriptionId`, which names
+the signup's subscription on the initial order, and `productType="subscription"`
+renewal lines. `subscription_plan` product IDs remain plan references. A signed
+`order.paid` snapshot can carry a null `subscriptionId`; reconcile the checkout to
+read the current order. See [Subscriptions](docs/Subscriptions.md).
 Fluent never guesses a subscription from a customer, plan or quantity.
 
 ## Learn the integration

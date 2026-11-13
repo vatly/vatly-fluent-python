@@ -12,7 +12,7 @@ from .builders import CheckoutBuilder, SubscriptionBuilder
 from .contracts import CustomerProfile, FluentError, LocalSubscription, Wiring, required
 from .customers import CustomerHandle, CustomerService
 from .handles import OrderHandle, SubscriptionHandle
-from .linkage import link_order
+from .linkage import link_order, subscription_ids
 from .webhooks import WebhookProcessor
 
 
@@ -22,6 +22,7 @@ class CheckoutResolution:
     subscriptions: tuple[Subscription, ...] = ()
     pending_subscription_ids: tuple[str, ...] = ()
     legacy_plan_ids: tuple[str, ...] = ()
+    unresolved_line_ids: tuple[str, ...] = ()
 
 
 class TestHelpers:
@@ -126,6 +127,9 @@ class Vatly:
         Caller authorizes the checkout and runs own-record writes in a transaction.
         No customerId fallback and no plan->subscription guessing. A pending ID can
         remain absent forever when the core deliberately skips subscription start.
+        ``unresolved_line_ids`` are signup lines whose subscription core has not
+        resolved yet; they may resolve on a later call, or never.
+        ``legacy_plan_ids`` are plan lines on historical orders without a reference.
         """
         if isinstance(attempts, bool) or not isinstance(attempts, int) or not 1 <= attempts <= 10:
             raise FluentError("attempts must be an integer between 1 and 10")
@@ -142,12 +146,7 @@ class Vatly:
         await link_order(self.wiring, record, order)
         found = []
         pending = []
-        ids = dict.fromkeys(
-            line.product_id
-            for line in order.lines
-            if line.product_type == "subscription" and line.product_id
-        )
-        for sub_id in ids:
+        for sub_id in subscription_ids(order):
             for attempt in range(attempts):
                 try:
                     subscription = await self.api.subscriptions.get(sub_id)
@@ -164,7 +163,14 @@ class Vatly:
             dict.fromkeys(
                 line.product_id
                 for line in order.lines
-                if line.product_type == "subscription_plan" and line.product_id
+                if line.product_type == "subscription_plan"
+                and line.product_id
+                and line.related_resources is None
             )
         )
-        return CheckoutResolution(order, tuple(found), tuple(pending), legacy)
+        unresolved = tuple(
+            line.id
+            for line in order.lines
+            if line.related_resources is not None and not line.related_resources.subscription_id
+        )
+        return CheckoutResolution(order, tuple(found), tuple(pending), legacy, unresolved)

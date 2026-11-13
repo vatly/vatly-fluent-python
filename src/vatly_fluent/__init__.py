@@ -27,7 +27,7 @@ from .customers import CustomerHandle, CustomerService
 from .handles import OrderHandle, SubscriptionHandle
 from .webhooks import WebhookProcessor
 
-__version__ = "0.1.0a2"
+__version__ = "0.1.0a3"
 
 __all__ = [
     "Vatly",
