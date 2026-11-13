@@ -2,7 +2,7 @@
 
 > **Alpha — under active development. Every alpha release may include breaking changes. Pin exact versions during alpha.**
 
-Integrate billing with Vatly, the European merchant of record for AI, software and
+Integrate billing with Vatly, the European Merchant of Record for AI, software and
 digital products, without tying your application to a framework or database.
 Fluent adds chainable checkout/subscription builders, customer and subscription
 handles, pluggable persistence, and a signed webhook-to-domain-event pipeline on
