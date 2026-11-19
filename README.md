@@ -1,6 +1,6 @@
 # Vatly Fluent for Python
 
-> **Alpha — under active development. Every alpha release may include breaking changes. Pin exact versions during alpha.**
+> **Alpha — under active development. Every alpha release may include breaking changes. Lock the version you install and review the release notes before upgrading.**
 
 Integrate billing with Vatly, the European Merchant of Record for AI, software and
 digital products, without tying your application to a framework or database.
@@ -12,8 +12,10 @@ transactions and jobs. Python 3.10+, fully typed, **async-first**.
 ## Install
 
 ```bash
-pip install vatly-fluent-python==0.1.0a3 vatly-api-python==0.1.0a3
+pip install --pre vatly-fluent-python
 ```
+
+`--pre` installs the latest alpha, including the matching `vatly-api-python` alpha.
 
 For development, run `.agents/setup` or `uv sync --locked`. Both development and
 package metadata use the exact SDK version from PyPI.
