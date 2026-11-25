@@ -48,7 +48,8 @@ async def example(vatly: Vatly):
 
 `model()`, `name()`, `email()` and `identity()` share a cached snapshot. `sync()`
 and `update()` refresh it. Name/email are not invoice address fields; use the
-[portal](CustomerPortal.md) for hosted billing management.
+[portal](CustomerPortal.md) for hosted billing management. The SDK checks customer
+bodies before sending; an invalid one raises Pydantic's `ValidationError`.
 
 | Lookup | Return |
 | --- | --- |

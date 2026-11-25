@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.0a4 — 2026-11-25
+
+- Require `vatly-api-python==0.1.0a4`.
+- Stored refunds and refund webhook snapshots carry `Refund.metadata` (None when
+  the refund was created without metadata).
+- Checkout builders reject invalid metadata (non-string values, more than 50 keys,
+  keys over 40 or values over 500 characters) and `trialDays` below 1 with
+  `FluentError("Invalid checkout request")` before calling Vatly, instead of the
+  API's `VatlyValidationError`.
+- Behaviour change from the SDK: dictionary bodies passed to customer and
+  subscription calls are validated before sending, so invalid input raises Pydantic's
+  `ValidationError` instead of `VatlyValidationError`. Fields the API schema does not
+  define are dropped, and `None` is sent only on nullable fields.
+
 ## 0.1.0a3 — 2026-11-13
 
 - Link initial orders to their subscriptions through

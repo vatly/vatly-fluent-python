@@ -132,6 +132,18 @@ async def test_validation_fails_before_remote_call(harness):
         vatly.subscribe().in_live_mode()
     with pytest.raises(FluentError):
         await vatly.subscribe().create()
+    plan = {"id": "subscription_plan_a"}
+    for metadata in [
+        {"n": 1},
+        {f"k{i}": "v" for i in range(51)},
+        {"k" * 41: "v"},
+        {"k": "v" * 501},
+    ]:
+        with pytest.raises(FluentError, match="Invalid checkout request"):
+            await vatly.checkout_builder().with_items([plan]).with_metadata(metadata).create()
+    for item in [{**plan, "trialDays": 0}, {**plan, "metadata": {"n": 1}}]:
+        with pytest.raises(FluentError, match="Invalid checkout request"):
+            await vatly.checkout_builder().with_items([item]).create()
     vatly.wiring.checkouts = None
     with pytest.raises(FluentError):
         await vatly.subscribe().to_plan("subscription_plan_a").for_entity(TEAM).create()
@@ -284,12 +296,18 @@ async def test_financial_reversal_snapshots_persist_and_dispatch(harness, name, 
     vatly, db, calls, responses = harness
     await db.checkouts.record(CheckoutRecord("checkout_a", TEAM, True))
     await db.checkouts.link("checkout_a", "order", "order_a")
-    obj = resource(fixture, originalOrderId="order_a")
+    extra = {"metadata": {"ticket": "T-1"}} if fixture == "Refund" else {}
+    obj = resource(fixture, originalOrderId="order_a", **extra)
     assert await deliver(vatly, name, obj)
     repo = db.refunds if fixture == "Refund" else db.chargebacks
     saved = await repo.find_by_vatly_id(obj["id"])
     assert saved.entity == TEAM
     assert saved.resource.tax_summary
+    if fixture == "Refund":
+        assert saved.resource.metadata.root == {"ticket": "T-1"}
+        await deliver(vatly, name, {**obj, "metadata": {"ticket": "T-2"}}, id="event_again")
+        [updated] = await repo.list_for_order("order_a")
+        assert updated.resource.metadata.root == {"ticket": "T-2"}
     assert len(await repo.list_for_order("order_a")) == 1
     assert not calls
 

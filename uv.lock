@@ -1571,21 +1571,21 @@ wheels = [
 
 [[package]]
 name = "vatly-api-python"
-version = "0.1.0a3"
+version = "0.1.0a4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/24/06/3fe5113356153b6619552c6e0c7f33c6c7771d27fda2085172276edc26d8/vatly_api_python-0.1.0a3.tar.gz", hash = "sha256:aa8af3f52d6570a869aceb7a7c6ee64ddf85f124ed1bf504eabc28228b3ad07d", size = 112463, upload-time = "2026-11-13T16:59:55.29Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/13/94/283b6a56d937bed9884b4586da2b943c58550a8fb888872b0cb51cbbc09a/vatly_api_python-0.1.0a4.tar.gz", hash = "sha256:ab44588efb0fd99b5e47e50aff98588792fb94a6ccc8dcf0400df33efd1c1fa4", size = 118105, upload-time = "2026-11-25T09:25:48.62Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/32/d3/510c5b139fc8a180d82d0ae0dd7b6ccc46a732493bd4cdab198c47d5a5b9/vatly_api_python-0.1.0a3-py3-none-any.whl", hash = "sha256:436f4d2ec62a96fdb71fd8431996a69bb0358fd690d792df643a344ea961029b", size = 39347, upload-time = "2026-11-13T16:59:54.028Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/7a/77ba61463c98077deb7551fd059bf6aab00628f1945a578fe0bf72e9396f/vatly_api_python-0.1.0a4-py3-none-any.whl", hash = "sha256:0c0071cbdc063cfd4d7d84df4ae22ecb49def537f710bb74ab6da3f78d13dcf5", size = 41169, upload-time = "2026-11-25T09:25:47.309Z" },
 ]
 
 [[package]]
 name = "vatly-fluent-python"
-version = "0.1.0a3"
+version = "0.1.0a4"
 source = { editable = "." }
 dependencies = [
     { name = "vatly-api-python" },
@@ -1602,7 +1602,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "vatly-api-python", specifier = "==0.1.0a3" }]
+requires-dist = [{ name = "vatly-api-python", specifier = "==0.1.0a4" }]
 
 [package.metadata.requires-dev]
 dev = [

@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vatly-fluent-python"
-version = "0.1.0a3"
+version = "0.1.0a4"
 description = "Framework-independent fluent billing integrations built on the Vatly Python SDK"
 keywords = ["vatly", "merchant-of-record", "billing", "payments", "subscriptions", "vat", "ai"]
 requires-python = ">=3.10"
 readme = "README.md"
 license = "MIT"
-dependencies = ["vatly-api-python==0.1.0a3"]
+dependencies = ["vatly-api-python==0.1.0a4"]
 classifiers = ["Development Status :: 3 - Alpha", "Typing :: Typed", "Programming Language :: Python :: 3"]
 
 [project.urls]
