@@ -17,8 +17,13 @@ pip install --pre vatly-fluent-python
 
 `--pre` installs the latest alpha, including the matching `vatly-api-python` alpha.
 
-For development, run `.agents/setup` or `uv sync --locked`. Both development and
-package metadata use the exact SDK version from PyPI.
+For development, run `.agents/setup` or `uv sync --locked`. Package metadata pins the
+exact SDK version from PyPI; development temporarily uses the SDK branch from
+`[tool.uv.sources]` in `pyproject.toml` (see [Development](docs/Development.md)).
+
+`Vatly(...)` appends `vatly/vatly-fluent-python/<version>` to the SDK client's
+`User-Agent`, after the SDK's own tokens, once per client. SDK versions without
+`add_version_string` keep their own `User-Agent`.
 
 ## First checkout
 

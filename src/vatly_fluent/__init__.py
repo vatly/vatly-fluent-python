@@ -1,5 +1,6 @@
 """Vatly Fluent: builders, handles, driver contracts and signed webhook reactions."""
 
+from ._version import __version__
 from .builders import CheckoutBuilder, CheckoutResult, SubscriptionBuilder
 from .client import CheckoutResolution, TestHelpers, Vatly
 from .contracts import (
@@ -26,8 +27,6 @@ from .contracts import (
 from .customers import CustomerHandle, CustomerService
 from .handles import OrderHandle, SubscriptionHandle
 from .webhooks import WebhookProcessor
-
-__version__ = "0.1.0a4"
 
 __all__ = [
     "Vatly",

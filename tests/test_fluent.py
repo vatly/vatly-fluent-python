@@ -1,16 +1,19 @@
 import asyncio
 import itertools
 import json
+import platform
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import httpx
 import pytest
+import vatly as vatly_sdk
 from vatly import AsyncVatlyClient, RequestOptions, VatlyForbiddenError, VatlyInvalidSignatureError
 from vatly.models import Subscription
 from vatly.webhooks import compute_signature_v1
 
+import vatly_fluent
 from examples.sqlite_driver import SQLiteDriver
 from vatly_fluent import (
     CheckoutRecord,
@@ -171,6 +174,17 @@ async def test_customer_cache_bindings_portal_and_conflicts(harness):
     responses.append({"url": "https://portal.test/one-use", "expiresAt": "2026-01-01T01:00:00Z"})
     portal = await handle.portal_session()
     assert portal.url == "https://portal.test/one-use"
+
+
+async def test_user_agent_names_fluent_once(harness):
+    vatly, db, calls, responses = harness
+    Vatly(vatly.wiring)  # A second facade on the same client adds no second token.
+    responses.append(resource("Customer", id="customer_a"))
+    await vatly.customer("customer_a").model()
+    tokens = calls[0].headers["User-Agent"].split(" ")
+    assert tokens[0] == f"vatly/vatly-api-python/{vatly_sdk.__version__}"
+    assert tokens[1:3] == [f"Python/{platform.python_version()}", f"httpx/{httpx.__version__}"]
+    assert tokens[3:] == [f"vatly/vatly-fluent-python/{vatly_fluent.__version__}"]
 
 
 async def test_errors_are_preserved(harness):

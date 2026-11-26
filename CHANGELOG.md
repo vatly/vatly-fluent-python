@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- `Vatly(...)` appends `vatly/vatly-fluent-python/<version>` to the SDK client's
+  `User-Agent`, once per client, using the SDK's `add_version_string`
+  (vatly/vatly-api-python#5). With an SDK that lacks it, nothing changes.
+
 ## 0.1.0a4 — 2026-11-25
 
 - Require `vatly-api-python==0.1.0a4`.

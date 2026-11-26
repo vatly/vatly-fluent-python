@@ -8,6 +8,7 @@ from vatly import RequestOptions, VatlyNotFoundError
 from vatly.models import Order, Subscription
 from vatly.resources import AsyncOneOffProducts, AsyncSubscriptionPlans, AsyncTestHelpers
 
+from ._version import __version__
 from .builders import CheckoutBuilder, SubscriptionBuilder
 from .contracts import CustomerProfile, FluentError, LocalSubscription, Wiring, required
 from .customers import CustomerHandle, CustomerService
@@ -77,6 +78,10 @@ class Vatly:
     def __init__(self, wiring: Wiring) -> None:
         self.wiring = wiring
         self.api = wiring.api
+        # Older SDKs have no add_version_string; they keep their own User-Agent.
+        add = getattr(self.api, "add_version_string", None)
+        if add is not None:
+            add(f"vatly/vatly-fluent-python/{__version__}")
         self.customers = CustomerService(wiring)
 
     def one_off_products(self) -> AsyncOneOffProducts:
