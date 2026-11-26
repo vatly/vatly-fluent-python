@@ -31,6 +31,12 @@ dev = [
 [tool.uv]
 required-version = ">=0.12.9"
 
+# Until vatly-api-python ships add_version_string (vatly/vatly-api-python#5), develop and
+# test against that branch. Remove this, pin the released SDK, and run `uv lock` before
+# releasing.
+[tool.uv.sources]
+vatly-api-python = { git = "https://github.com/vatly/vatly-api-python", rev = "75a1816c049afc7b90e8f1f205de28a1bb0458ff" }
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/vatly_fluent"]
 
